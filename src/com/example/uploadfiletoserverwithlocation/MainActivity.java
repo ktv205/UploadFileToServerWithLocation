@@ -22,20 +22,29 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.EditText;
 import android.widget.TextView;
 
 public class MainActivity extends Activity implements
 		GooglePlayServicesClient.ConnectionCallbacks,
 		GooglePlayServicesClient.OnConnectionFailedListener {
 	final static int REQUEST_CODE = 0;
+	final static String UPLOAD_KEY="UPLOADMODEL";
 	final static String DEBUG_TAG = "MainActivity";
 	private LocationClient client;
-
+	private UploadModel uploadModel;
+    private String path;
+    private double latitude;
+    private double longitude;
+    private double radius;
+    private EditText editRadius;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		Log.d(DEBUG_TAG, "onCreate");
+		editRadius=(EditText)findViewById(R.id.rad);
+		uploadModel=new UploadModel();
 		findViewById(R.id.upload_button).setOnClickListener(
 				new OnClickListener() {
 
@@ -52,7 +61,15 @@ public class MainActivity extends Activity implements
 
 					@Override
 					public void onClick(View v) {
-						// TODO Auto-generated method stub
+						radius=Double.parseDouble((editRadius.getText().toString()));
+						uploadModel.setFilePath(path);
+						uploadModel.setLat(latitude);
+						uploadModel.setLng(longitude);
+						uploadModel.setRad(radius);
+						Intent intent=new Intent(MainActivity.this, UploadService.class);
+						intent.putExtra(UPLOAD_KEY, uploadModel);
+						startService(intent);
+						
 
 					}
 				});
@@ -82,6 +99,7 @@ public class MainActivity extends Activity implements
 				Uri uri = data.getData();
 				Log.d(DEBUG_TAG, "cotent-uri->" + uri.toString());
 				List<String> list=getFilePathFromUri(uri);
+				path=list.get(0);
 				TextView meta=(TextView)findViewById(R.id.song_tile);
 				meta.setText(list.get(1));
 			}
@@ -140,6 +158,8 @@ public class MainActivity extends Activity implements
 		Log.d(DEBUG_TAG, "onDisconnected");
 	}
 	public void setCurrentLatLng(Location location){
+		latitude=location.getLatitude();
+		longitude=location.getLongitude();
 		TextView lat=(TextView)findViewById(R.id.lat);
 		TextView lng=(TextView)findViewById(R.id.lng);
 		lat.setText(String.valueOf(location.getLatitude()));

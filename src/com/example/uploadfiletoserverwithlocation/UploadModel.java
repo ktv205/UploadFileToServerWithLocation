@@ -1,7 +1,5 @@
 package com.example.uploadfiletoserverwithlocation;
 
-import java.io.File;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -11,7 +9,10 @@ public class UploadModel implements Parcelable {
 	private double lng;
 	private double rad;
 	
-
+	
+  public UploadModel(){
+	  
+  }
 	public String getFilePath() {
 		return filePath;
 	}
